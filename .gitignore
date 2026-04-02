@@ -1,0 +1,11 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+data/
+*.db
+*.sqlite
+*.sqlite3
+*.log
+E2E_TEST_REPORT_*.json
+*.bak.*

@@ -1,0 +1,1692 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DuckMail Control Panel</title>
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f2f4f8;
+        --panel: #ffffff;
+        --panel-soft: #f8fafc;
+        --text: #0f172a;
+        --muted: #64748b;
+        --line: #d8e0ea;
+        --line-strong: #c5d0de;
+        --blue: #1d4ed8;
+        --blue-soft: #e8f0ff;
+        --green: #15803d;
+        --green-soft: #e9f9ef;
+        --amber: #b45309;
+        --amber-soft: #fef3dd;
+        --red: #b91c1c;
+        --red-soft: #fde9e9;
+        --radius: 14px;
+        --shadow: 0 5px 18px rgba(15, 23, 42, 0.06);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+        color: var(--text);
+        background: var(--bg);
+        font-family: "Manrope", sans-serif;
+      }
+
+      .mono,
+      code,
+      pre,
+      .code {
+        font-family: "IBM Plex Mono", monospace;
+      }
+
+      .app {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 280px 1fr;
+      }
+
+      .sidebar {
+        border-right: 1px solid var(--line);
+        background: #f9fbff;
+        padding: 20px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .brand h1 {
+        margin: 0;
+        font-size: 1.15rem;
+        font-weight: 800;
+        letter-spacing: 0.2px;
+      }
+
+      .brand small {
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+
+      .auth-box {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px;
+        box-shadow: var(--shadow);
+        display: grid;
+        gap: 9px;
+      }
+
+      .label {
+        font-size: 0.79rem;
+        color: var(--muted);
+      }
+
+      input,
+      textarea,
+      button,
+      select {
+        font: inherit;
+      }
+
+      input,
+      textarea,
+      select {
+        width: 100%;
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 10px;
+        padding: 9px 10px;
+        color: var(--text);
+      }
+
+      textarea {
+        resize: vertical;
+      }
+
+      .nav {
+        display: grid;
+        gap: 6px;
+      }
+
+      .nav button {
+        border: 1px solid transparent;
+        background: transparent;
+        text-align: left;
+        border-radius: 10px;
+        padding: 10px 11px;
+        color: #334155;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .nav button:hover {
+        background: #eef2f8;
+      }
+
+      .nav button.active {
+        background: var(--blue-soft);
+        border-color: #c8dafe;
+        color: #1e3a8a;
+      }
+
+      .sidebar-foot {
+        margin-top: auto;
+        font-size: 0.74rem;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      .workspace {
+        padding: 22px;
+      }
+
+      .workspace-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .workspace-head h2 {
+        margin: 0;
+        font-size: 1.62rem;
+        line-height: 1.2;
+      }
+
+      .workspace-head p {
+        margin: 8px 0 0;
+        color: var(--muted);
+      }
+
+      .head-tools {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .sync-pill {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        border: 1px solid var(--line-strong);
+        background: var(--panel);
+        padding: 6px 10px;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+
+      .sync-pill.ok {
+        color: var(--green);
+        border-color: #8fc9a2;
+        background: var(--green-soft);
+      }
+
+      .sync-pill.err {
+        color: var(--red);
+        border-color: #e9b0b0;
+        background: var(--red-soft);
+      }
+
+      .btn {
+        border: 1px solid var(--line-strong);
+        background: var(--panel);
+        color: #1e293b;
+        border-radius: 10px;
+        padding: 9px 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      a.btn {
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+      }
+
+      .btn:hover {
+        border-color: #afbdd2;
+      }
+
+      .btn.primary {
+        background: var(--blue);
+        border-color: #1d4ed8;
+        color: #fff;
+      }
+
+      .btn.primary:hover {
+        background: #1e40af;
+      }
+
+      .btn.warn {
+        background: #fff;
+        color: var(--red);
+        border-color: #e7b2b2;
+      }
+
+      .btn.tiny {
+        padding: 5px 8px;
+        border-radius: 8px;
+        font-size: 0.76rem;
+      }
+
+      .view {
+        display: none;
+        animation: viewFade 220ms ease-out;
+      }
+
+      .view.active {
+        display: block;
+      }
+
+      @keyframes viewFade {
+        from {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 14px;
+      }
+
+      .span-12 {
+        grid-column: span 12;
+      }
+
+      .span-6 {
+        grid-column: span 6;
+      }
+
+      .span-4 {
+        grid-column: span 4;
+      }
+
+      .span-8 {
+        grid-column: span 8;
+      }
+
+      .stat-num {
+        font-size: 1.72rem;
+        font-weight: 800;
+        margin-top: 2px;
+      }
+
+      .stat-sub {
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      .section-title {
+        margin: 0 0 10px;
+        font-size: 1.04rem;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .stack {
+        display: grid;
+        gap: 10px;
+      }
+
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .row.wrap {
+        flex-wrap: wrap;
+      }
+
+      .status {
+        min-height: 1.2em;
+        font-size: 0.82rem;
+      }
+
+      .status.ok {
+        color: var(--green);
+      }
+
+      .status.err {
+        color: var(--red);
+      }
+
+      .status.warn {
+        color: var(--amber);
+      }
+
+      .table-wrap {
+        overflow: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 760px;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+        padding: 10px;
+        font-size: 0.88rem;
+      }
+
+      th {
+        color: #475569;
+        font-weight: 700;
+        background: #f8fafc;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 3px 8px;
+        font-size: 0.74rem;
+        font-weight: 700;
+      }
+
+      .badge.ok {
+        background: var(--green-soft);
+        color: var(--green);
+      }
+
+      .badge.pending {
+        background: var(--amber-soft);
+        color: var(--amber);
+      }
+
+      .badge.off {
+        background: #eceff3;
+        color: #64748b;
+      }
+
+      .permissions {
+        display: grid;
+        gap: 8px;
+      }
+
+      .permissions label {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 9px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel-soft);
+      }
+
+      .permissions input {
+        width: auto;
+        margin: 0;
+      }
+
+      .code-preview {
+        border: 1px solid #c7d5ee;
+        background: #f5f9ff;
+        border-radius: 12px;
+        padding: 11px;
+      }
+
+      .code-preview input {
+        background: #fff;
+      }
+
+      .message-list {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #fff;
+        min-height: 180px;
+        max-height: 340px;
+        overflow: auto;
+      }
+
+      .message-item {
+        padding: 10px 11px;
+        border-bottom: 1px solid #e7edf4;
+        cursor: pointer;
+      }
+
+      .message-item:last-child {
+        border-bottom: none;
+      }
+
+      .message-item:hover {
+        background: #f8fafc;
+      }
+
+      .message-item h4 {
+        margin: 0;
+        font-size: 0.9rem;
+      }
+
+      .message-item p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+
+      #detailBody {
+        min-height: 220px;
+      }
+
+      .empty {
+        color: var(--muted);
+        font-size: 0.9rem;
+        padding: 12px 2px;
+      }
+
+      .toast {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        z-index: 30;
+        opacity: 0;
+        transform: translateY(8px);
+        transition: all 180ms ease-out;
+        pointer-events: none;
+        background: #0f172a;
+        color: #fff;
+        border-radius: 10px;
+        padding: 9px 12px;
+        font-size: 0.84rem;
+        max-width: 400px;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (max-width: 1120px) {
+        .app {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          border-right: none;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .grid {
+          grid-template-columns: repeat(6, minmax(0, 1fr));
+        }
+
+        .span-8,
+        .span-6,
+        .span-4 {
+          grid-column: span 6;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .workspace {
+          padding: 14px;
+        }
+
+        .workspace-head {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div>
+            <h1>DuckMail Panel</h1>
+            <small>Domain + Temp Mail Console</small>
+          </div>
+        </div>
+
+        <div class="auth-box">
+          <div class="label">Admin Key</div>
+          <input
+            id="adminKeyInput"
+            type="password"
+            placeholder="输入 ADMIN_KEY"
+          />
+          <button
+            id="verifyAdminBtn"
+            class="btn primary"
+          >
+            验证并连接
+          </button>
+          <div
+            id="adminAuthStatus"
+            class="status"
+          ></div>
+        </div>
+
+        <nav class="nav">
+          <button
+            type="button"
+            data-view="overview"
+          >
+            概览
+          </button>
+          <button
+            type="button"
+            data-view="domains"
+          >
+            域名管理
+          </button>
+          <button
+            type="button"
+            data-view="api-keys"
+          >
+            API 密钥
+          </button>
+          <button
+            type="button"
+            data-view="mailbox"
+          >
+            临时邮箱
+          </button>
+        </nav>
+
+        <div class="sidebar-foot">业务域名请按实际环境手动配置。</div>
+      </aside>
+
+      <main class="workspace">
+        <header class="workspace-head">
+          <div>
+            <h2 id="pageTitle">概览</h2>
+            <p id="pageDesc">查看域名、API 密钥和临时邮箱运行状态。</p>
+          </div>
+          <div class="head-tools">
+            <span
+              id="syncState"
+              class="sync-pill"
+            >
+              未连接
+            </span>
+            <button
+              id="refreshAllBtn"
+              class="btn"
+            >
+              刷新数据
+            </button>
+          </div>
+        </header>
+
+        <section
+          id="view-overview"
+          class="view active"
+        >
+          <div class="grid">
+            <article class="card span-4">
+              <div class="muted">总域名数</div>
+              <div
+                id="statTotalDomains"
+                class="stat-num"
+              >
+                -
+              </div>
+              <div class="stat-sub">已录入到系统</div>
+            </article>
+            <article class="card span-4">
+              <div class="muted">已验证域名</div>
+              <div
+                id="statVerifiedDomains"
+                class="stat-num"
+              >
+                -
+              </div>
+              <div class="stat-sub">通过 TXT 校验</div>
+            </article>
+            <article class="card span-4">
+              <div class="muted">可用 API 密钥</div>
+              <div
+                id="statApiKeys"
+                class="stat-num"
+              >
+                -
+              </div>
+              <div class="stat-sub">用于自动化接码</div>
+            </article>
+
+            <article class="card span-12">
+              <h3 class="section-title">快速操作</h3>
+              <div class="row wrap">
+                <button
+                  class="btn primary"
+                  id="jumpAddDomainBtn"
+                >
+                  添加并验证域名
+                </button>
+                <button
+                  class="btn"
+                  id="jumpCreateApiKeyBtn"
+                >
+                  创建 API 密钥
+                </button>
+                <button
+                  class="btn"
+                  id="jumpMailboxBtn"
+                >
+                  创建临时邮箱并提取验证码
+                </button>
+              </div>
+              <p class="muted">
+                推荐流程：先验证域名，再创建 API Key，最后通过 API 或面板创建邮箱并提取验证码。
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section
+          id="view-domains"
+          class="view"
+        >
+          <div class="grid">
+            <article class="card span-12">
+              <h3 class="section-title">添加域名</h3>
+              <div class="row wrap">
+                <input
+                  id="domainInput"
+                  placeholder="例如 mail.example.com"
+                />
+                <button
+                  id="addDomainBtn"
+                  class="btn primary"
+                >
+                  添加域名
+                </button>
+              </div>
+              <div
+                id="domainStatus"
+                class="status"
+              ></div>
+            </article>
+
+            <article class="card span-12">
+              <h3 class="section-title">域名列表</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>域名</th>
+                      <th>状态</th>
+                      <th>DNS 引导</th>
+                      <th>创建时间</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="domainsTableBody"></tbody>
+                </table>
+              </div>
+              <div
+                id="domainsEmpty"
+                class="empty"
+              >
+                暂无域名。
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section
+          id="view-api-keys"
+          class="view"
+        >
+          <div class="grid">
+            <article class="card span-12">
+              <h3 class="section-title">接口文档</h3>
+              <p class="muted">
+                创建完 API 密钥后，可以直接打开对接文档查看鉴权方式、请求示例和完整调用流程。
+              </p>
+              <div class="row wrap">
+                <a
+                  class="btn primary"
+                  href="/api-docs.html"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  打开接口文档
+                </a>
+              </div>
+            </article>
+
+            <article class="card span-6">
+              <h3 class="section-title">创建 API 密钥</h3>
+              <div class="stack">
+                <div>
+                  <div class="label">名称</div>
+                  <input
+                    id="apiKeyNameInput"
+                    placeholder="例如：prod-auto-key"
+                  />
+                </div>
+                <div>
+                  <div class="label">过期天数（留空=不过期）</div>
+                  <input
+                    id="apiKeyExpiryDaysInput"
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <div class="label">权限</div>
+                  <div
+                    id="permissionsBox"
+                    class="permissions"
+                  ></div>
+                </div>
+                <button
+                  id="createApiKeyBtn"
+                  class="btn primary"
+                >
+                  生成 API 密钥
+                </button>
+                <div
+                  id="apiKeyStatus"
+                  class="status"
+                ></div>
+              </div>
+            </article>
+
+            <article class="card span-6">
+              <h3 class="section-title">新密钥（只展示一次）</h3>
+              <div
+                id="newKeyPanel"
+                class="code-preview"
+                style="display: none"
+              >
+                <div class="label">请立即保存</div>
+                <div class="row">
+                  <input
+                    id="newApiKeyPlain"
+                    readonly
+                  />
+                  <button
+                    id="copyNewKeyBtn"
+                    class="btn"
+                  >
+                    复制
+                  </button>
+                </div>
+                <p
+                  id="newKeyWarning"
+                  class="muted"
+                  style="margin: 8px 0 0"
+                ></p>
+              </div>
+              <div
+                id="newKeyEmpty"
+                class="empty"
+              >
+                创建后会在这里显示明文密钥。
+              </div>
+            </article>
+
+            <article class="card span-12">
+              <h3 class="section-title">已有 API 密钥</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>名称</th>
+                      <th>前缀</th>
+                      <th>权限</th>
+                      <th>创建时间</th>
+                      <th>最后使用</th>
+                      <th>状态</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="apiKeysTableBody"></tbody>
+                </table>
+              </div>
+              <div
+                id="apiKeysEmpty"
+                class="empty"
+              >
+                暂无 API 密钥。
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section
+          id="view-mailbox"
+          class="view"
+        >
+          <div class="grid">
+            <article class="card span-4">
+              <h3 class="section-title">打开临时邮箱（免密码）</h3>
+              <div class="stack">
+                <div>
+                  <div class="label">邮箱地址</div>
+                  <input
+                    id="mailboxAddressInput"
+                    placeholder="bot@example-mail.test"
+                  />
+                </div>
+                <button
+                  id="openMailboxBtn"
+                  class="btn primary"
+                >
+                  打开邮箱并获取 Token
+                </button>
+              </div>
+
+              <h3
+                class="section-title"
+                style="margin-top: 16px"
+              >
+                随机生成邮箱
+              </h3>
+              <div class="stack">
+                <div>
+                  <div class="label">收信域名</div>
+                  <select id="randomDomainSelect"></select>
+                </div>
+                <button
+                  id="openRandomMailboxBtn"
+                  class="btn"
+                >
+                  随机生成并打开
+                </button>
+                <div class="label">当前邮箱</div>
+                <input
+                  id="currentMailboxAddressInput"
+                  readonly
+                />
+                <div class="row wrap">
+                  <button
+                    id="copyMailboxAddressBtn"
+                    class="btn tiny"
+                  >
+                    复制邮箱
+                  </button>
+                </div>
+                <div class="label">当前 Token</div>
+                <input
+                  id="userTokenInput"
+                  readonly
+                />
+                <div class="row wrap">
+                  <button
+                    id="copyMailboxTokenBtn"
+                    class="btn tiny"
+                  >
+                    复制 Token
+                  </button>
+                  <button
+                    id="clearMailboxTokenBtn"
+                    class="btn tiny warn"
+                  >
+                    清空 Token
+                  </button>
+                </div>
+              </div>
+              <div
+                id="mailboxAuthStatus"
+                class="status"
+              ></div>
+            </article>
+
+            <article class="card span-8">
+              <h3 class="section-title">消息与验证码</h3>
+              <div class="row wrap">
+                <button
+                  id="refreshMessagesBtn"
+                  class="btn"
+                >
+                  刷新消息
+                </button>
+                <button
+                  id="latestCodeBtn"
+                  class="btn primary"
+                >
+                  提取最新验证码
+                </button>
+                <input
+                  id="codeRegexInput"
+                  placeholder="可选：自定义 regex"
+                />
+              </div>
+              <div
+                id="mailboxStatus"
+                class="status"
+              ></div>
+              <div
+                class="row wrap"
+                style="margin-top: 8px"
+              >
+                <input
+                  id="latestCodeValueInput"
+                  readonly
+                  placeholder="提取后显示最新验证码"
+                />
+                <button
+                  id="copyLatestCodeBtn"
+                  class="btn tiny"
+                >
+                  复制验证码
+                </button>
+              </div>
+
+              <div
+                id="messageList"
+                class="message-list"
+              >
+                <div class="empty">暂无消息。</div>
+              </div>
+
+              <div style="margin-top: 10px">
+                <div class="label">消息详情</div>
+                <div
+                  id="detailMeta"
+                  class="code muted"
+                  style="margin: 6px 0"
+                ></div>
+                <textarea
+                  id="detailBody"
+                  readonly
+                  placeholder="点击消息后显示正文"
+                ></textarea>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div
+      id="toast"
+      class="toast"
+    ></div>
+
+    <script>
+      const VIEWS = {
+        overview: { title: "概览", desc: "查看域名、API 密钥和临时邮箱运行状态。" },
+        domains: { title: "域名管理", desc: "添加域名、完成 DNS 验证，并管理收信域名。" },
+        "api-keys": { title: "API 密钥", desc: "创建/删除 API 密钥，给自动化接码脚本使用。" },
+        mailbox: { title: "临时邮箱", desc: "手动输入或随机生成邮箱，直接取 Token 并提取验证码。" }
+      };
+
+      const state = {
+        adminKey: localStorage.getItem("dm_admin_key") || "",
+        userToken: localStorage.getItem("dm_user_token") || "",
+        currentMailboxAddress: localStorage.getItem("dm_mailbox_address") || "",
+        latestCode: "",
+        stats: null,
+        domains: [],
+        apiKeys: [],
+        permissions: []
+      };
+
+      const el = {
+        navButtons: Array.from(document.querySelectorAll(".nav button")),
+        pageTitle: document.getElementById("pageTitle"),
+        pageDesc: document.getElementById("pageDesc"),
+        syncState: document.getElementById("syncState"),
+        toast: document.getElementById("toast"),
+        adminKeyInput: document.getElementById("adminKeyInput"),
+        verifyAdminBtn: document.getElementById("verifyAdminBtn"),
+        adminAuthStatus: document.getElementById("adminAuthStatus"),
+        refreshAllBtn: document.getElementById("refreshAllBtn"),
+        statTotalDomains: document.getElementById("statTotalDomains"),
+        statVerifiedDomains: document.getElementById("statVerifiedDomains"),
+        statApiKeys: document.getElementById("statApiKeys"),
+        jumpAddDomainBtn: document.getElementById("jumpAddDomainBtn"),
+        jumpCreateApiKeyBtn: document.getElementById("jumpCreateApiKeyBtn"),
+        jumpMailboxBtn: document.getElementById("jumpMailboxBtn"),
+        domainInput: document.getElementById("domainInput"),
+        addDomainBtn: document.getElementById("addDomainBtn"),
+        domainStatus: document.getElementById("domainStatus"),
+        domainsTableBody: document.getElementById("domainsTableBody"),
+        domainsEmpty: document.getElementById("domainsEmpty"),
+        apiKeyNameInput: document.getElementById("apiKeyNameInput"),
+        apiKeyExpiryDaysInput: document.getElementById("apiKeyExpiryDaysInput"),
+        permissionsBox: document.getElementById("permissionsBox"),
+        createApiKeyBtn: document.getElementById("createApiKeyBtn"),
+        apiKeyStatus: document.getElementById("apiKeyStatus"),
+        newKeyPanel: document.getElementById("newKeyPanel"),
+        newKeyEmpty: document.getElementById("newKeyEmpty"),
+        newApiKeyPlain: document.getElementById("newApiKeyPlain"),
+        copyNewKeyBtn: document.getElementById("copyNewKeyBtn"),
+        newKeyWarning: document.getElementById("newKeyWarning"),
+        apiKeysTableBody: document.getElementById("apiKeysTableBody"),
+        apiKeysEmpty: document.getElementById("apiKeysEmpty"),
+        mailboxAddressInput: document.getElementById("mailboxAddressInput"),
+        openMailboxBtn: document.getElementById("openMailboxBtn"),
+        randomDomainSelect: document.getElementById("randomDomainSelect"),
+        openRandomMailboxBtn: document.getElementById("openRandomMailboxBtn"),
+        currentMailboxAddressInput: document.getElementById("currentMailboxAddressInput"),
+        userTokenInput: document.getElementById("userTokenInput"),
+        copyMailboxAddressBtn: document.getElementById("copyMailboxAddressBtn"),
+        copyMailboxTokenBtn: document.getElementById("copyMailboxTokenBtn"),
+        clearMailboxTokenBtn: document.getElementById("clearMailboxTokenBtn"),
+        mailboxAuthStatus: document.getElementById("mailboxAuthStatus"),
+        refreshMessagesBtn: document.getElementById("refreshMessagesBtn"),
+        latestCodeBtn: document.getElementById("latestCodeBtn"),
+        latestCodeValueInput: document.getElementById("latestCodeValueInput"),
+        copyLatestCodeBtn: document.getElementById("copyLatestCodeBtn"),
+        codeRegexInput: document.getElementById("codeRegexInput"),
+        mailboxStatus: document.getElementById("mailboxStatus"),
+        messageList: document.getElementById("messageList"),
+        detailMeta: document.getElementById("detailMeta"),
+        detailBody: document.getElementById("detailBody")
+      };
+
+      function esc(value) {
+        return String(value || "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function formatTime(v) {
+        if (!v) return "-";
+        const d = new Date(v);
+        if (Number.isNaN(d.getTime())) return String(v);
+        return d.toLocaleString();
+      }
+
+      function setStatus(node, text, type = "ok") {
+        node.textContent = text || "";
+        node.className = "status " + (text ? type : "");
+      }
+
+      let toastTimer = 0;
+      function showToast(text) {
+        el.toast.textContent = text;
+        el.toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.toast.classList.remove("show"), 2200);
+      }
+
+      function setSync(text, type = "") {
+        el.syncState.textContent = text;
+        el.syncState.className = "sync-pill" + (type ? ` ${type}` : "");
+      }
+
+      function setView(view) {
+        if (!VIEWS[view]) view = "overview";
+        for (const btn of el.navButtons) {
+          btn.classList.toggle("active", btn.dataset.view === view);
+        }
+        for (const section of document.querySelectorAll(".view")) {
+          section.classList.toggle("active", section.id === `view-${view}`);
+        }
+        el.pageTitle.textContent = VIEWS[view].title;
+        el.pageDesc.textContent = VIEWS[view].desc;
+      }
+
+      function syncViewFromHash() {
+        const view = (location.hash || "#overview").slice(1);
+        setView(VIEWS[view] ? view : "overview");
+      }
+
+      async function requestJson(url, options = {}) {
+        const res = await fetch(url, options);
+        const raw = await res.text();
+        let data = null;
+        if (raw) {
+          try {
+            data = JSON.parse(raw);
+          } catch {
+            data = { message: raw };
+          }
+        }
+        if (!res.ok) {
+          const msg = data?.error || data?.message || `HTTP ${res.status}`;
+          throw new Error(msg);
+        }
+        return data;
+      }
+
+      function adminHeaders() {
+        return {
+          "Content-Type": "application/json",
+          "x-admin-key": state.adminKey
+        };
+      }
+
+      function userHeaders() {
+        return {
+          Authorization: `Bearer ${state.userToken}`
+        };
+      }
+
+      async function verifyAdminKey(show = true) {
+        if (!state.adminKey) {
+          setStatus(el.adminAuthStatus, "请先输入 Admin Key", "err");
+          setSync("未连接", "");
+          return false;
+        }
+        try {
+          await requestJson("/admin/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ key: state.adminKey })
+          });
+          setSync("已连接", "ok");
+          if (show) setStatus(el.adminAuthStatus, "Admin Key 验证通过", "ok");
+          return true;
+        } catch (error) {
+          setSync("连接失败", "err");
+          if (show) setStatus(el.adminAuthStatus, error.message || "Admin Key 无效", "err");
+          return false;
+        }
+      }
+
+      function renderStats() {
+        const stats = state.stats || {};
+        el.statTotalDomains.textContent = stats.totalDomains ?? "-";
+        el.statVerifiedDomains.textContent = stats.verifiedDomains ?? "-";
+        el.statApiKeys.textContent = stats.apiKeys ?? "-";
+      }
+
+      function renderDomains() {
+        const rows = state.domains || [];
+        el.domainsTableBody.innerHTML = rows
+          .map((item) => {
+            const verified = item.status === "verified";
+            const dnsTxtName = item?.dns?.txt?.name || "-";
+            const dnsTxtValue = item?.dns?.txt?.value || "-";
+            const dnsMxName = item?.dns?.mx?.name || "-";
+            const dnsMxValue = item?.dns?.mx?.value || "-";
+            const dnsMxPri = item?.dns?.mx?.priority ?? "-";
+            return `
+              <tr>
+                <td>
+                  <div><strong>${esc(item.domain)}</strong></div>
+                </td>
+                <td>
+                  <span class="badge ${verified ? "ok" : "pending"}">${verified ? "已验证" : "待验证"}</span>
+                </td>
+                <td>
+                  <div class="mono">TXT ${esc(dnsTxtName)}</div>
+                  <div class="mono">${esc(dnsTxtValue)}</div>
+                  <div class="mono" style="margin-top:4px">MX ${esc(dnsMxName)} -> ${esc(dnsMxValue)} (prio ${esc(dnsMxPri)})</div>
+                  <div class="row wrap" style="margin-top:6px">
+                    <button class="btn tiny" data-copy="${esc(dnsTxtValue)}">复制 TXT 值</button>
+                    <button class="btn tiny" data-copy="${esc(dnsMxValue)}">复制 MX 值</button>
+                  </div>
+                </td>
+                <td>${esc(formatTime(item.created_at))}</td>
+                <td>
+                  <div class="row wrap">
+                    <button class="btn tiny primary" data-verify="${esc(item.id)}">验证 DNS</button>
+                    <button class="btn tiny warn" data-delete="${esc(item.id)}" data-domain="${esc(item.domain)}">删除</button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          })
+          .join("");
+        el.domainsEmpty.style.display = rows.length ? "none" : "block";
+        renderRandomDomainOptions();
+      }
+
+      function renderRandomDomainOptions() {
+        const verifiedDomains = (state.domains || [])
+          .filter((d) => d.status === "verified")
+          .map((d) => d.domain);
+        if (!verifiedDomains.length) {
+          el.randomDomainSelect.innerHTML = '<option value="">暂无已验证域名</option>';
+          el.randomDomainSelect.disabled = true;
+          return;
+        }
+
+        const previous = el.randomDomainSelect.value;
+        el.randomDomainSelect.disabled = false;
+        el.randomDomainSelect.innerHTML = verifiedDomains
+          .map((domain) => `<option value="${esc(domain)}">${esc(domain)}</option>`)
+          .join("");
+        if (verifiedDomains.includes(previous)) {
+          el.randomDomainSelect.value = previous;
+        }
+      }
+
+      function renderPermissions() {
+        if (!state.permissions.length) {
+          el.permissionsBox.innerHTML = '<div class="muted">暂无权限项</div>';
+          return;
+        }
+        el.permissionsBox.innerHTML = state.permissions
+          .map((perm, index) => {
+            const checked = index < 2 ? "checked" : "";
+            return `
+              <label>
+                <input type="checkbox" value="${esc(perm.id)}" ${checked} />
+                <span>${esc(perm.label)}</span>
+              </label>
+            `;
+          })
+          .join("");
+      }
+
+      function renderApiKeys() {
+        const keys = state.apiKeys || [];
+        el.apiKeysTableBody.innerHTML = keys
+          .map((item) => {
+            const active = Boolean(item.isActive);
+            const expired = item.expiresAt && new Date(item.expiresAt).getTime() < Date.now();
+            const live = active && !expired;
+            return `
+              <tr>
+                <td><strong>${esc(item.name)}</strong></td>
+                <td class="mono">${esc(item.keyPrefix || item.tokenPrefix || "-")}</td>
+                <td>${esc((item.permissions || []).join(", ") || "-")}</td>
+                <td>${esc(formatTime(item.createdAt))}</td>
+                <td>${esc(formatTime(item.lastUsedAt))}</td>
+                <td>
+                  <span class="badge ${live ? "ok" : "off"}">${live ? "活跃" : "不可用"}</span>
+                </td>
+                <td>
+                  <button class="btn tiny warn" data-delete-key="${esc(item.id)}" data-key-name="${esc(item.name)}">删除</button>
+                </td>
+              </tr>
+            `;
+          })
+          .join("");
+        el.apiKeysEmpty.style.display = keys.length ? "none" : "block";
+      }
+
+      function renderToken() {
+        if (state.currentMailboxAddress) {
+          el.mailboxAddressInput.value = state.currentMailboxAddress;
+        }
+        el.currentMailboxAddressInput.value = state.currentMailboxAddress || "";
+        el.userTokenInput.value = state.userToken || "";
+      }
+
+      function setLatestCode(code) {
+        state.latestCode = String(code || "").trim();
+        el.latestCodeValueInput.value = state.latestCode;
+      }
+
+      function setMailboxSession(address, token) {
+        state.currentMailboxAddress = String(address || "").trim().toLowerCase();
+        state.userToken = String(token || "").trim();
+        setLatestCode("");
+
+        if (state.currentMailboxAddress) {
+          localStorage.setItem("dm_mailbox_address", state.currentMailboxAddress);
+        } else {
+          localStorage.removeItem("dm_mailbox_address");
+        }
+        if (state.userToken) {
+          localStorage.setItem("dm_user_token", state.userToken);
+        } else {
+          localStorage.removeItem("dm_user_token");
+        }
+        renderToken();
+      }
+
+      async function loadStats() {
+        const stats = await requestJson("/admin/stats", { headers: adminHeaders() });
+        state.stats = stats;
+        renderStats();
+      }
+
+      async function loadDomains() {
+        const rows = await requestJson("/admin/domains", { headers: adminHeaders() });
+        state.domains = Array.isArray(rows) ? rows : [];
+        renderDomains();
+      }
+
+      async function loadPermissions() {
+        const data = await requestJson("/api-keys/permissions");
+        state.permissions = Array.isArray(data?.permissions) ? data.permissions : [];
+        renderPermissions();
+      }
+
+      async function loadApiKeys() {
+        const data = await requestJson("/admin/api-keys", { headers: adminHeaders() });
+        state.apiKeys = Array.isArray(data?.apiKeys) ? data.apiKeys : [];
+        renderApiKeys();
+      }
+
+      async function addDomain() {
+        const domain = el.domainInput.value.trim();
+        if (!domain) {
+          setStatus(el.domainStatus, "请输入域名", "err");
+          return;
+        }
+        try {
+          await requestJson("/admin/domains", {
+            method: "POST",
+            headers: adminHeaders(),
+            body: JSON.stringify({ domain })
+          });
+          el.domainInput.value = "";
+          setStatus(el.domainStatus, "域名添加成功，请先配置 TXT 再验证", "ok");
+          await Promise.all([loadDomains(), loadStats()]);
+          showToast("域名已添加");
+        } catch (error) {
+          setStatus(el.domainStatus, error.message || "添加域名失败", "err");
+        }
+      }
+
+      async function verifyDomain(id) {
+        try {
+          await requestJson(`/admin/domains/${id}/verify`, {
+            method: "POST",
+            headers: adminHeaders()
+          });
+          setStatus(el.domainStatus, "DNS 验证成功", "ok");
+          await Promise.all([loadDomains(), loadStats()]);
+          showToast("域名已验证");
+        } catch (error) {
+          setStatus(el.domainStatus, error.message || "验证失败", "err");
+        }
+      }
+
+      async function deleteDomain(id, domain) {
+        const ok = confirm(`确定删除域名 ${domain} ?`);
+        if (!ok) return;
+        try {
+          await requestJson(`/admin/domains/${id}`, {
+            method: "DELETE",
+            headers: adminHeaders()
+          });
+          setStatus(el.domainStatus, "域名已删除", "warn");
+          await Promise.all([loadDomains(), loadStats()]);
+          showToast("域名已删除");
+        } catch (error) {
+          setStatus(el.domainStatus, error.message || "删除域名失败", "err");
+        }
+      }
+
+      async function createApiKey() {
+        const name = el.apiKeyNameInput.value.trim();
+        if (!name) {
+          setStatus(el.apiKeyStatus, "请输入密钥名称", "err");
+          return;
+        }
+        const permissions = Array.from(el.permissionsBox.querySelectorAll('input[type="checkbox"]:checked')).map(
+          (n) => n.value
+        );
+        const expiryDays = Number(el.apiKeyExpiryDaysInput.value || 0);
+        try {
+          const result = await requestJson("/admin/api-keys", {
+            method: "POST",
+            headers: adminHeaders(),
+            body: JSON.stringify({
+              name,
+              permissions,
+              expiresInDays: Number.isFinite(expiryDays) ? expiryDays : 0
+            })
+          });
+          const token = result?.plainKey || result?.token || "";
+          if (token) {
+            el.newApiKeyPlain.value = token;
+            el.newKeyWarning.textContent = result?.warning || "密钥只展示一次，请立即保存。";
+            el.newKeyPanel.style.display = "block";
+            el.newKeyEmpty.style.display = "none";
+          }
+          el.apiKeyNameInput.value = "";
+          el.apiKeyExpiryDaysInput.value = "";
+          setStatus(el.apiKeyStatus, "API 密钥创建成功", "ok");
+          await Promise.all([loadApiKeys(), loadStats()]);
+          showToast("API 密钥已创建");
+        } catch (error) {
+          setStatus(el.apiKeyStatus, error.message || "创建 API 密钥失败", "err");
+        }
+      }
+
+      async function deleteApiKey(id, name) {
+        const ok = confirm(`确定删除 API 密钥 ${name} ?`);
+        if (!ok) return;
+        try {
+          await requestJson(`/admin/api-keys/${id}`, {
+            method: "DELETE",
+            headers: adminHeaders()
+          });
+          setStatus(el.apiKeyStatus, "API 密钥已删除", "warn");
+          await Promise.all([loadApiKeys(), loadStats()]);
+          showToast("API 密钥已删除");
+        } catch (error) {
+          setStatus(el.apiKeyStatus, error.message || "删除 API 密钥失败", "err");
+        }
+      }
+
+      async function openMailbox(payload) {
+        try {
+          const data = await requestJson("/mailboxes/open", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          setMailboxSession(data?.address || "", data?.token || "");
+          if (data?.address) {
+            el.mailboxAddressInput.value = data.address;
+          }
+          setStatus(el.mailboxAuthStatus, `邮箱已就绪: ${data?.address || "-"}`, "ok");
+          showToast(data?.created ? "邮箱已创建并获取 Token" : "已获取邮箱 Token");
+          await loadMessages();
+        } catch (error) {
+          setStatus(el.mailboxAuthStatus, error.message || "打开邮箱失败", "err");
+        }
+      }
+
+      async function openManualMailbox() {
+        const address = el.mailboxAddressInput.value.trim().toLowerCase();
+        if (!address) {
+          setStatus(el.mailboxAuthStatus, "请填写邮箱地址", "err");
+          return;
+        }
+        await openMailbox({ address });
+      }
+
+      async function openRandomMailbox() {
+        const domain = String(el.randomDomainSelect.value || "").trim().toLowerCase();
+        if (!domain) {
+          setStatus(el.mailboxAuthStatus, "请先选择已验证域名", "err");
+          return;
+        }
+        await openMailbox({ domain, random: true });
+      }
+
+      async function loadMessages() {
+        if (!state.userToken) {
+          setStatus(el.mailboxStatus, "请先打开邮箱拿到 Token", "err");
+          return;
+        }
+        try {
+          const data = await requestJson("/messages?page=1", { headers: userHeaders() });
+          const list = data?.["hydra:member"] || [];
+          if (!list.length) {
+            el.messageList.innerHTML = '<div class="empty">暂无消息。</div>';
+            setStatus(el.mailboxStatus, "消息列表为空", "warn");
+            return;
+          }
+          el.messageList.innerHTML = list
+            .map(
+              (msg) => `
+              <div class="message-item" data-msg-id="${esc(msg.id)}">
+                <h4>${esc(msg.subject || "(no subject)")}</h4>
+                <p>${esc(msg.intro || "")}</p>
+                <p class="mono">${esc(formatTime(msg.createdAt))}</p>
+              </div>
+            `
+            )
+            .join("");
+          setStatus(el.mailboxStatus, `已加载 ${list.length} 条消息`, "ok");
+        } catch (error) {
+          setStatus(el.mailboxStatus, error.message || "拉取消息失败", "err");
+        }
+      }
+
+      async function loadMessageDetail(id) {
+        try {
+          const msg = await requestJson(`/messages/${id}`, { headers: userHeaders() });
+          const code = msg.codes?.[0] || "无";
+          const subject = msg.subject || "(no subject)";
+          const time = formatTime(msg.createdAt);
+          el.detailMeta.textContent = `主题: ${subject} | 验证码: ${code} | 时间: ${time}`;
+          el.detailBody.value = msg.text || "";
+          if (msg.codes?.[0]) {
+            setLatestCode(msg.codes[0]);
+          }
+        } catch (error) {
+          setStatus(el.mailboxStatus, error.message || "读取详情失败", "err");
+        }
+      }
+
+      async function fetchLatestCode() {
+        if (!state.userToken) {
+          setStatus(el.mailboxStatus, "请先打开邮箱拿到 Token", "err");
+          return;
+        }
+        try {
+          const regex = el.codeRegexInput.value.trim();
+          const suffix = regex ? `?regex=${encodeURIComponent(regex)}` : "";
+          const data = await requestJson(`/codes/latest${suffix}`, { headers: userHeaders() });
+          setLatestCode(data.code || "");
+          setStatus(el.mailboxStatus, `最新验证码: ${data.code || "none"}`, "ok");
+          showToast(`验证码: ${data.code || "none"}`);
+        } catch (error) {
+          setStatus(el.mailboxStatus, error.message || "暂无验证码", "warn");
+        }
+      }
+
+      async function copyText(text, label) {
+        if (!text) return;
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast(`${label} 已复制`);
+        } catch {
+          showToast("复制失败，请手动复制");
+        }
+      }
+
+      async function refreshAll() {
+        const ok = await verifyAdminKey(false);
+        if (!ok) {
+          setStatus(el.adminAuthStatus, "请先验证 Admin Key", "err");
+          return;
+        }
+        try {
+          await Promise.all([loadStats(), loadDomains(), loadApiKeys()]);
+          setStatus(el.adminAuthStatus, "数据同步完成", "ok");
+          if (state.userToken) {
+            await loadMessages();
+          }
+        } catch (error) {
+          setStatus(el.adminAuthStatus, error.message || "刷新失败", "err");
+        }
+      }
+
+      function bindEvents() {
+        for (const btn of el.navButtons) {
+          btn.addEventListener("click", () => {
+            location.hash = `#${btn.dataset.view}`;
+          });
+        }
+        window.addEventListener("hashchange", syncViewFromHash);
+
+        el.verifyAdminBtn.addEventListener("click", async () => {
+          state.adminKey = el.adminKeyInput.value.trim();
+          localStorage.setItem("dm_admin_key", state.adminKey);
+          const ok = await verifyAdminKey(true);
+          if (ok) {
+            await refreshAll();
+          }
+        });
+
+        el.refreshAllBtn.addEventListener("click", refreshAll);
+        el.jumpAddDomainBtn.addEventListener("click", () => (location.hash = "#domains"));
+        el.jumpCreateApiKeyBtn.addEventListener("click", () => (location.hash = "#api-keys"));
+        el.jumpMailboxBtn.addEventListener("click", () => (location.hash = "#mailbox"));
+
+        el.addDomainBtn.addEventListener("click", addDomain);
+        el.domainInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") addDomain();
+        });
+
+        el.domainsTableBody.addEventListener("click", async (e) => {
+          const verifyBtn = e.target.closest("button[data-verify]");
+          if (verifyBtn) {
+            await verifyDomain(verifyBtn.dataset.verify);
+            return;
+          }
+          const deleteBtn = e.target.closest("button[data-delete]");
+          if (deleteBtn) {
+            await deleteDomain(deleteBtn.dataset.delete, deleteBtn.dataset.domain || "");
+            return;
+          }
+          const copyBtn = e.target.closest("button[data-copy]");
+          if (copyBtn) {
+            await copyText(copyBtn.dataset.copy, "DNS 值");
+          }
+        });
+
+        el.createApiKeyBtn.addEventListener("click", createApiKey);
+        el.copyNewKeyBtn.addEventListener("click", async () => {
+          await copyText(el.newApiKeyPlain.value, "API 密钥");
+        });
+        el.apiKeysTableBody.addEventListener("click", async (e) => {
+          const btn = e.target.closest("button[data-delete-key]");
+          if (!btn) return;
+          await deleteApiKey(btn.dataset.deleteKey, btn.dataset.keyName || "");
+        });
+
+        el.openMailboxBtn.addEventListener("click", openManualMailbox);
+        el.openRandomMailboxBtn.addEventListener("click", openRandomMailbox);
+        el.mailboxAddressInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") openManualMailbox();
+        });
+        el.copyMailboxAddressBtn.addEventListener("click", async () => {
+          await copyText(state.currentMailboxAddress || el.currentMailboxAddressInput.value, "邮箱地址");
+        });
+        el.copyMailboxTokenBtn.addEventListener("click", async () => {
+          await copyText(state.userToken, "Token");
+        });
+        el.copyLatestCodeBtn.addEventListener("click", async () => {
+          await copyText(state.latestCode || el.latestCodeValueInput.value, "验证码");
+        });
+        el.clearMailboxTokenBtn.addEventListener("click", () => {
+          setMailboxSession("", "");
+          setStatus(el.mailboxAuthStatus, "已清空当前邮箱会话", "warn");
+        });
+        el.refreshMessagesBtn.addEventListener("click", loadMessages);
+        el.latestCodeBtn.addEventListener("click", fetchLatestCode);
+        el.messageList.addEventListener("click", async (e) => {
+          const node = e.target.closest(".message-item[data-msg-id]");
+          if (!node) return;
+          await loadMessageDetail(node.dataset.msgId);
+        });
+      }
+
+      (async function init() {
+        el.adminKeyInput.value = state.adminKey;
+        renderToken();
+        setLatestCode("");
+        bindEvents();
+        syncViewFromHash();
+
+        try {
+          await loadPermissions();
+        } catch {
+          setStatus(el.apiKeyStatus, "权限列表加载失败", "warn");
+        }
+
+        if (!state.adminKey) return;
+        const ok = await verifyAdminKey(true);
+        if (!ok) return;
+        await refreshAll();
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DuckMail API 文档</title>
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f2f4f8;
+        --panel: #ffffff;
+        --line: #d8e0ea;
+        --text: #0f172a;
+        --muted: #64748b;
+        --blue: #1d4ed8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Manrope", sans-serif;
+      }
+
+      .wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 20px 14px 28px;
+      }
+
+      .topbar {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px;
+        margin-bottom: 12px;
+      }
+
+      .topbar h1 {
+        margin: 0;
+        font-size: 1.45rem;
+      }
+
+      .topbar p {
+        margin: 8px 0 0;
+        color: var(--muted);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #1d4ed8;
+        color: #fff;
+        background: var(--blue);
+        text-decoration: none;
+        border-radius: 10px;
+        padding: 8px 12px;
+        font-weight: 700;
+        margin-top: 10px;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px;
+        margin-bottom: 10px;
+      }
+
+      h2 {
+        margin: 0 0 10px;
+        font-size: 1.05rem;
+      }
+
+      p {
+        margin: 7px 0;
+        line-height: 1.5;
+      }
+
+      ul {
+        margin: 8px 0;
+        padding-left: 20px;
+      }
+
+      li {
+        margin: 5px 0;
+      }
+
+      pre,
+      code {
+        font-family: "IBM Plex Mono", monospace;
+      }
+
+      pre {
+        margin: 8px 0;
+        background: #f8fafc;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 10px;
+        overflow: auto;
+        font-size: 0.86rem;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .doc-link {
+        color: #1d4ed8;
+        text-decoration: none;
+        font-weight: 700;
+      }
+
+      .doc-link:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <section class="topbar">
+        <h1>DuckMail API 文档</h1>
+        <p>
+          Base URL: <code>https://your-api.example.com</code>，本文档为脱敏示例，可直接替换为你的部署地址使用。
+        </p>
+        <a
+          class="btn"
+          href="/admin.html#api-keys"
+        >
+          返回 API 密钥界面
+        </a>
+      </section>
+
+      <section class="card">
+        <h2>鉴权方式</h2>
+        <ul>
+          <li><code>x-admin-key</code>：仅用于 <code>/admin/*</code> 管理接口。</li>
+          <li><code>Authorization: Bearer dk_xxx</code>：API Key，用于自动化开箱与域名读取。</li>
+          <li><code>Authorization: Bearer &lt;jwt&gt;</code>：邮箱用户 Token，用于收信、提码、删信等。</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>核心流程</h2>
+        <p>推荐流程：创建 API Key -> 开邮箱 -> 获取消息 -> 提取验证码。</p>
+        <pre><code># 1) API Key 查看可用域名
+curl https://your-api.example.com/domains \
+  -H "Authorization: Bearer dk_xxx"
+
+# 2) 随机开邮箱（免密码）
+curl -X POST https://your-api.example.com/mailboxes/open \
+  -H "Authorization: Bearer dk_xxx" \
+  -H "Content-Type: application/json" \
+  -d '{"domain":"example-mail.test"}'
+
+# 返回: {"address":"random-user@example-mail.test","token":"jwt",...}
+
+# 3) 拉消息
+curl https://your-api.example.com/messages?page=1 \
+  -H "Authorization: Bearer USER_JWT"
+
+# 4) 拉最新验证码
+curl https://your-api.example.com/codes/latest \
+  -H "Authorization: Bearer USER_JWT"</code></pre>
+      </section>
+
+      <section class="card">
+        <h2>常用接口</h2>
+        <ul>
+          <li><code>GET /domains</code>：获取已验证域名。</li>
+          <li><code>POST /accounts</code>：创建邮箱账号（可密码模式）。</li>
+          <li><code>POST /mailboxes/open</code>：免密码打开邮箱（手填或随机）。</li>
+          <li><code>POST /token</code>：获取邮箱 Token（支持密码模式与免密码模式）。</li>
+          <li><code>GET /me</code>：当前邮箱信息。</li>
+          <li><code>GET /messages</code>：消息列表。</li>
+          <li><code>GET /messages/:id</code>：消息详情（正文已做 MIME 解码）。</li>
+          <li><code>GET /messages/:id/code</code>：从指定消息提取验证码。</li>
+          <li><code>GET /codes/latest</code>：提取最新验证码。</li>
+          <li><code>PATCH /messages/:id</code>：标记已读。</li>
+          <li><code>DELETE /messages/:id</code>：删除消息。</li>
+          <li><code>DELETE /accounts/:id</code>：删除当前邮箱。</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>管理接口（Admin）</h2>
+        <ul>
+          <li><code>POST /admin/login</code></li>
+          <li><code>GET /admin/stats</code></li>
+          <li><code>GET/POST/DELETE /admin/domains</code>、<code>POST /admin/domains/:id/verify</code></li>
+          <li><code>GET/POST/DELETE /admin/api-keys</code></li>
+          <li><code>GET /admin/accounts</code></li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>错误码</h2>
+        <ul>
+          <li><code>400</code> 参数错误</li>
+          <li><code>401</code> 未授权/鉴权失败</li>
+          <li><code>403</code> 权限不足</li>
+          <li><code>404</code> 资源不存在</li>
+          <li><code>409</code> 资源冲突</li>
+          <li><code>422</code> 业务校验失败</li>
+          <li><code>500</code> 服务异常</li>
+        </ul>
+        <p class="muted">
+          更完整版本可看服务器文档：
+          <a
+            class="doc-link"
+            href="/INTEGRATION_API_CN.md"
+            target="_blank"
+            rel="noopener"
+          >
+            /INTEGRATION_API_CN.md
+          </a>
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,26 @@
+services:
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: duckmail-mailhog
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:1025:1025"
+      - "127.0.0.1:8025:8025"
+
+  api:
+    build: ./services/api
+    container_name: duckmail-selfhost-api
+    restart: unless-stopped
+    environment:
+      PORT: 8787
+      DATABASE_PATH: /data/app.db
+      MAILHOG_API_BASE: http://mailhog:8025
+      ADMIN_KEY: ${ADMIN_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      SMTP_MX_HOST: ${SMTP_MX_HOST}
+    volumes:
+      - ./data:/data
+    ports:
+      - "127.0.0.1:8787:8787"
+    depends_on:
+      - mailhog
