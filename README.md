@@ -1,6 +1,3 @@
---------------------------zlK4i9zXvXwdRMq0fJvsI3
-Content-Disposition: form-data; name="c"; filename="README.md"
-Content-Type: application/octet-stream
 
 # DuckMail Selfhost Stack (MVP)
 
