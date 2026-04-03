@@ -82,4 +82,3 @@ curl http://127.0.0.1:8787/codes/latest \
 - It is not a full mail system like mailcow/mailu (no full anti-spam/queue/relay stack).
 - For production-grade high-deliverability inboxing, add Postfix/Rspamd and stricter SMTP policies.
 
---------------------------zlK4i9zXvXwdRMq0fJvsI3--
