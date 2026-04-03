@@ -1,4 +1,4 @@
-# DuckMail 自部署对接文档（脱敏示例版）
+# DuckMail 自部署对接文档
 
 更新时间：2026-04-03（Asia/Shanghai）  
 服务地址：`https://your-api.example.com`
